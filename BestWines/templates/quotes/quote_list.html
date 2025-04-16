@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}My Quotes{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+  <h1 class="text-2xl font-bold">Quotes</h1>
+  <a href="{% url 'quotes:create' %}" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+    + Create Quote
+  </a>
+</div>
+
+{% if quotes %}
+  <div class="grid gap-4">
+    {% for quote in quotes %}
+      <a href="{% url 'quotes:detail' quote.id %}" class="block bg-white p-4 rounded shadow hover:shadow-md transition">
+        <div class="flex justify-between items-center">
+          <div>
+            <h2 class="text-lg font-semibold">Quote #{{ quote.id }}</h2>
+            <p class="text-sm text-gray-500">{{ quote.customer_name }} — {{ quote.created_at|date:"Y-m-d H:i" }}</p>
+          </div>
+          <div class="text-right">
+            <span class="text-sm text-gray-700">{{ quote.items.count }} item{{ quote.items.count|pluralize }}</span>
+          </div>
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+{% else %}
+  <p class="text-gray-600">No quotes found. <a href="{% url 'quotes:create' %}" class="text-indigo-600 underline">Create one</a>.</p>
+{% endif %}
+{% endblock %}

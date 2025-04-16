@@ -1,0 +1,80 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    @page {
+      size: A4;
+      margin: 2cm;
+    }
+    body {
+      font-family: sans-serif;
+      font-size: 11px;
+      color: #000;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 18px;
+    }
+    .header p {
+      margin: 5px 0;
+      font-size: 10px;
+    }
+    .meta {
+      margin-bottom: 20px;
+      font-size: 12px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 6px;
+      text-align: left;
+    }
+    th {
+      background: #f0f0f0;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Best Wines London Ltd</h1>
+    <p>154 Shepherds Bush Road, London, W6 7PB, United Kingdom</p>
+    <p>Company No: 07748562 | <a href="https://bestwines.co.uk">bestwines.co.uk</a></p>
+  </div>
+
+  <div class="meta">
+    <strong>Quote #{{ quote.id }}</strong><br>
+    Customer: {{ quote.customer_name }}<br>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Product Code</th>
+        <th>Description</th>
+        <th>Size</th>
+        <th>Price</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in items %}
+      <tr>
+        <td>{{ item.product.product_code }}</td>
+        <td>{{ item.product.product_description }}</td>
+        <td>{{ item.product.size }}</td>
+        <td>£{{ item.selling_price }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>

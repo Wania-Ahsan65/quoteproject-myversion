@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% block title %}Products Dashboard - BestWines{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold">Products Dashboard</h1>
+    <a href="{% url 'products:upload' %}" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+        Upload Products
+    </a>
+</div>
+
+<!-- Search Bar -->
+<form method="get" class="mb-6">
+  <div class="flex">
+    <input type="text" name="q" value="{{ query }}" 
+           placeholder="Search by product code or description" 
+           class="w-full px-4 py-2 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+    <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-r-lg hover:bg-indigo-700">
+      Search
+    </button>
+  </div>
+</form>
+
+<!-- Product List -->
+<div class="grid grid-cols-1 gap-6">
+  {% for group in page_obj.object_list %}
+    <a href="{% url 'products:edit' group.product_code %}" class="block">
+      <div class="p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+        <!-- Header: Product Name and Code -->
+        <div class="mb-3">
+          {% if group.product_description %}
+            <h2 class="text-2xl font-semibold text-indigo-600">{{ group.product_description }}</h2>
+          {% else %}
+            <h2 class="text-2xl font-semibold text-indigo-600">{{ group.product_code }}</h2>
+          {% endif %}
+          <p class="text-gray-500">Code: {{ group.product_code }}</p>
+          <div class="mt-2 text-sm text-gray-500">
+            <span>Category: {{ group.category }}</span> &middot;
+            <span>Size: {{ group.size }}</span> &middot;
+            <span>ABV: {{ group.abv }}</span> &middot;
+            <span>Country: {{ group.country }}</span>
+          </div>
+        </div>
+        <!-- Brands Table (with fixed max-height for many variants) -->
+        <div>
+          <h3 class="font-medium text-gray-700 mb-1">Brands:</h3>
+          <div class="overflow-x-auto max-h-64 overflow-y-auto">
+            <table class="min-w-full divide-y divide-gray-200 text-sm">
+              <thead>
+                <tr class="bg-gray-50">
+                  <th scope="col" class="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">
+                    Brand
+                  </th>
+                  <th scope="col" class="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">
+                    Cost Price
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                {% for variant in group.variants %}
+                  <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-gray-900">{{ variant.brand }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-gray-900">${{ variant.cost_price }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </a>
+  {% empty %}
+    <p class="text-gray-700">No products found.</p>
+  {% endfor %}
+</div>
+
+<!-- Pagination Controls -->
+<div class="mt-8 flex justify-center items-center space-x-4">
+  {% if page_obj.has_previous %}
+    <a href="?q={{ query }}&page={{ page_obj.previous_page_number }}"
+       class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">
+       Previous
+    </a>
+  {% endif %}
+  
+  <span class="px-4 py-2 bg-white border rounded">
+    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+  </span>
+  
+  {% if page_obj.has_next %}
+    <a href="?q={{ query }}&page={{ page_obj.next_page_number }}"
+       class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">
+       Next
+    </a>
+  {% endif %}
+</div>
+{% endblock %}

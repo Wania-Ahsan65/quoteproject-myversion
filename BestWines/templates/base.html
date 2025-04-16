@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}BestWines Dashboard{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+
+  <!-- ✅ Fixed Top Bar -->
+  <header class="fixed top-0 left-0 right-0 z-50 bg-white shadow flex items-center justify-between px-6 py-3 h-20">
+    <div class="flex items-center space-x-3">
+      <!-- ✅ Brand Logo -->
+      <img src="https://bestwines.co.uk/wp-content/uploads/2021/12/cropped-BestWines-logo-blk.png" alt="BestWines Logo" class="h-10 w-auto object-contain">
+      <span class="text-xl font-semibold text-gray-800">Automated Quote and Inventory Management</span>
+    </div>
+    <div class="flex items-center space-x-4">
+      <span class="text-gray-700 font-medium">Hello, {{ request.user.username }}</span>
+      <a href="{% url 'logout' %}" class="px-4 py-2 text-sm text-white bg-red-500 rounded hover:bg-red-600">Logout</a>
+    </div>
+  </header>
+
+  <div class="flex pt-20"> <!-- ✅ Push content below the fixed header (80px) -->
+
+    <!-- ✅ Sticky Sidebar -->
+    <aside class="w-64 h-[calc(100vh-5rem)] sticky top-20 bg-white shadow overflow-y-auto">
+      <nav class="p-6 space-y-4">
+        <a href="{% url 'dashboard' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded">Dashboard</a>
+        <a href="{% url 'products:list' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded">Products</a>
+        <a href="{% url 'quotes:list' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded">Quotes</a>
+      </nav>
+    </aside>
+
+    <!-- ✅ Main Content Area -->
+    <main class="flex-1 p-8">
+      {% block content %}
+      <!-- Your pages will inject here -->
+      {% endblock %}
+    </main>
+  </div>
+
+  <!-- ✅ Django Messages as alert() (optional) -->
+  {% if messages %}
+    <script>
+      window.addEventListener('load', function() {
+        {% for message in messages %}
+          alert("{{ message|escapejs }}");
+        {% endfor %}
+      });
+    </script>
+  {% endif %}
+</body>
+</html>

@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+{% block title %}Edit Product - {{ product_code }}{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow">
+  <h1 class="text-2xl font-bold mb-4">Edit Product: {{ product_code }}</h1>
+  
+  <!-- Tab Navigation -->
+  <div class="mb-4 border-b border-gray-300">
+    <nav class="-mb-px flex space-x-4">
+      <button type="button" onclick="showTab('general')" id="tab-general" class="tab-button text-indigo-600 border-indigo-600 border-b-2 font-medium text-sm">General Info</button>
+      <button type="button" onclick="showTab('variants')" id="tab-variants" class="tab-button text-gray-500 hover:text-gray-700 border-transparent border-b-2 font-medium text-sm">Variants</button>
+    </nav>
+  </div>
+  
+  <form method="post">
+    {% csrf_token %}
+    <div id="general" class="tab-content">
+      <h2 class="text-xl font-semibold mb-2">General Information</h2>
+      <div class="grid grid-cols-1 gap-4">
+          <div>
+              {{ general_form.product_code.label_tag }}<br>
+              {{ general_form.product_code }}
+              {% if general_form.product_code.errors %}
+                  <p class="text-red-500 text-xs">{{ general_form.product_code.errors }}</p>
+              {% endif %}
+          </div>
+          <div>
+              {{ general_form.product_description.label_tag }}<br>
+              {{ general_form.product_description }}
+              {% if general_form.product_description.errors %}
+                  <p class="text-red-500 text-xs">{{ general_form.product_description.errors }}</p>
+              {% endif %}
+          </div>
+          <div>
+              {{ general_form.category.label_tag }}<br>
+              {{ general_form.category }}
+              {% if general_form.category.errors %}
+                  <p class="text-red-500 text-xs">{{ general_form.category.errors }}</p>
+              {% endif %}
+          </div>
+          <div>
+              {{ general_form.size.label_tag }}<br>
+              {{ general_form.size }}
+              {% if general_form.size.errors %}
+                  <p class="text-red-500 text-xs">{{ general_form.size.errors }}</p>
+              {% endif %}
+          </div>
+          <div>
+              {{ general_form.abv.label_tag }}<br>
+              {{ general_form.abv }}
+              {% if general_form.abv.errors %}
+                  <p class="text-red-500 text-xs">{{ general_form.abv.errors }}</p>
+              {% endif %}
+          </div>
+          <div>
+              {{ general_form.country.label_tag }}<br>
+              {{ general_form.country }}
+              {% if general_form.country.errors %}
+                  <p class="text-red-500 text-xs">{{ general_form.country.errors }}</p>
+              {% endif %}
+          </div>
+      </div>
+    </div>
+    
+    <div id="variants" class="tab-content hidden">
+        <h2 class="text-xl font-semibold mb-2">Variants</h2>
+        {{ variant_formset.management_form }}
+        <div class="space-y-4">
+          {% for form in variant_formset %}
+            <div class="p-4 border rounded">
+                <!-- Explicitly render the hidden id field -->
+                {{ form.id }}
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        {{ form.brand.label_tag }}<br>
+                        {{ form.brand }}
+                        {% if form.brand.errors %}
+                            <p class="text-red-500 text-xs">{{ form.brand.errors }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        {{ form.cost_price.label_tag }}<br>
+                        {{ form.cost_price }}
+                        {% if form.cost_price.errors %}
+                            <p class="text-red-500 text-xs">{{ form.cost_price.errors }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    
+    <div class="mt-6">
+      <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+        Update
+      </button>
+    </div>
+  </form>
+</div>
+
+<!-- Tab Toggling Script -->
+<script>
+  function showTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(function(tab){
+          tab.classList.add('hidden');
+      });
+      document.querySelectorAll('.tab-button').forEach(function(btn) {
+          btn.classList.remove('text-indigo-600', 'border-indigo-600');
+          btn.classList.add('text-gray-500', 'border-transparent');
+      });
+      
+      document.getElementById(tabId).classList.remove('hidden');
+      
+      if (tabId === 'general') {
+          document.getElementById('tab-general').classList.remove('text-gray-500', 'border-transparent');
+          document.getElementById('tab-general').classList.add('text-indigo-600', 'border-indigo-600');
+      } else if (tabId === 'variants') {
+          document.getElementById('tab-variants').classList.remove('text-gray-500', 'border-transparent');
+          document.getElementById('tab-variants').classList.add('text-indigo-600', 'border-indigo-600');
+      }
+  }
+  // Default to showing general info
+  showTab('general');
+</script>
+
+<!-- Pop-Up Notification for Django Messages -->
+{% if messages %}
+  <script>
+    window.addEventListener('load', function() {
+      {% for message in messages %}
+        alert("{{ message|escapejs }}");
+      {% endfor %}
+    });
+  </script>
+{% endif %}
+{% endblock %}

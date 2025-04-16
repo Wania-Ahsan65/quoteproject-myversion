@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+{% block title %}Create Quote{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">Create Quote</h1>
+
+<form method="post" id="quote-form">
+  {% csrf_token %}
+
+  <!-- Quote Info -->
+  <div class="bg-white p-4 mb-6 rounded shadow space-y-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label class="block font-medium">Customer Name</label>
+        <input type="text" name="customer_name" class="w-full border rounded px-3 py-2" required>
+      </div>
+      <div>
+        <label class="block font-medium">Notes</label>
+        <textarea name="notes" rows="2" class="w-full border rounded px-3 py-2"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quote Builder -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+    <!-- Left: Search & Products -->
+    <div class="bg-white p-4 rounded shadow h-[75vh] overflow-y-auto">
+      <div class="mb-4 flex gap-4">
+        <select id="category-filter" class="border px-3 py-2 rounded w-1/2">
+          <option value="">All Categories</option>
+          {% for category in categories %}
+            <option value="{{ category }}">{{ category }}</option>
+          {% endfor %}
+        </select>
+        <input id="search" type="text" placeholder="Search products..."
+               class="border px-3 py-2 rounded w-full">
+      </div>
+
+      {% for product_code, variants in products_by_code.items %}
+      <div class="mb-6 border rounded p-4" data-category="{{ variants.0.category|lower }}">
+        <h2 class="text-base font-semibold text-gray-800">{{ variants.0.product_description }}</h2>
+        <p class="text-sm text-gray-500 mb-2">{{ product_code }}</p>
+
+        {% for variant in variants %}
+        <div class="flex items-center justify-between bg-gray-50 rounded px-2 py-2 mb-1">
+          <label class="flex items-center gap-2 w-full">
+            <input type="checkbox" class="variant-checkbox"
+                   data-id="{{ variant.id }}"
+                   data-brand="{{ variant.brand }}"
+                   data-code="{{ variant.product_code }}"
+                   data-description="{{ variant.product_description }}"
+                   data-cost="{{ variant.cost_price }}">
+            <div>
+              <p class="text-sm font-medium text-gray-700">{{ variant.brand }}</p>
+            </div>
+          </label>
+          <span class="text-sm text-gray-500 whitespace-nowrap ml-2">£{{ variant.cost_price }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Right: Quote Preview -->
+    <div class="bg-white p-4 rounded shadow h-[75vh] overflow-y-auto">
+      <h2 class="text-lg font-bold mb-4">Quote Items</h2>
+      <div id="selected-items" class="space-y-4"></div>
+
+      <button type="submit" class="mt-6 w-full py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+        Save Quote
+      </button>
+    </div>
+  </div>
+</form>
+
+<!-- JS for Dynamic Behavior -->
+<script>
+  const searchInput = document.getElementById('search');
+  const categoryFilter = document.getElementById('category-filter');
+  const variantCheckboxes = document.querySelectorAll('.variant-checkbox');
+  const selectedItems = document.getElementById('selected-items');
+  const selectedMap = {};
+
+  function createQuoteItem(variant) {
+    const wrapper = document.createElement('div');
+    wrapper.className = "border p-4 rounded bg-gray-50 mb-4";
+    wrapper.dataset.variantId = variant.id;
+
+    wrapper.innerHTML = `
+      <input type="hidden" name="items[${variant.id}][product_id]" value="${variant.id}">
+      <input type="hidden" name="items[${variant.id}][quantity]" value="1">
+      <div class="flex justify-between items-center mb-2">
+        <div>
+          <h3 class="font-semibold text-gray-800">${variant.description}</h3>
+          <p class="text-sm text-gray-500">${variant.code} — ${variant.brand}</p>
+        </div>
+        <button type="button" class="text-red-500 text-sm remove-item">Remove</button>
+      </div>
+      <div class="grid grid-cols-3 gap-4">
+        <div>
+          <label class="text-sm font-medium">Selling Price</label>
+          <input type="number" step="0.01" name="items[${variant.id}][selling_price]"
+                 class="w-full border px-2 py-1 rounded selling-price" required>
+        </div>
+        <div>
+          <label class="text-sm font-medium">Cost Price</label>
+          <input type="number" step="0.01" name="items[${variant.id}][cost_price]" value="${variant.cost}"
+                 class="w-full border px-2 py-1 rounded cost-price" required>
+        </div>
+        <div>
+          <label class="text-sm font-medium">Margin (%)</label>
+          <input type="number" step="0.01" name="items[${variant.id}][margin]"
+                 class="w-full border px-2 py-1 rounded margin-field bg-gray-100 text-gray-800" readonly>
+        </div>
+      </div>
+    `;
+
+    const costInput = wrapper.querySelector('.cost-price');
+    const priceInput = wrapper.querySelector('.selling-price');
+    const marginInput = wrapper.querySelector('.margin-field');
+
+    function updateMargin() {
+      const cost = parseFloat(costInput.value);
+      const price = parseFloat(priceInput.value);
+      if (!isNaN(cost) && !isNaN(price) && price > 0) {
+        const margin = ((price - cost) / price) * 100;
+        marginInput.value = margin.toFixed(2);
+      } else {
+        marginInput.value = '';
+      }
+    }
+
+    costInput.addEventListener('input', updateMargin);
+    priceInput.addEventListener('input', updateMargin);
+    updateMargin();
+
+    wrapper.querySelector('.remove-item').addEventListener('click', () => {
+      wrapper.remove();
+      delete selectedMap[variant.id];
+      document.querySelector(`.variant-checkbox[data-id="${variant.id}"]`).checked = false;
+    });
+
+    selectedItems.appendChild(wrapper);
+  }
+
+  variantCheckboxes.forEach(cb => {
+    cb.addEventListener('change', function () {
+      const variant = {
+        id: this.dataset.id,
+        code: this.dataset.code,
+        brand: this.dataset.brand,
+        description: this.dataset.description,
+        cost: this.dataset.cost
+      };
+
+      if (this.checked) {
+        if (!selectedMap[variant.id]) {
+          selectedMap[variant.id] = variant;
+          createQuoteItem(variant);
+        }
+      } else {
+        delete selectedMap[variant.id];
+        const block = selectedItems.querySelector(`input[value="${variant.id}"]`)?.closest('div.border');
+        if (block) block.remove();
+      }
+    });
+  });
+
+  function applyFilters() {
+    const searchQuery = searchInput.value.toLowerCase();
+    const selectedCategory = categoryFilter.value.toLowerCase();
+
+    document.querySelectorAll('.variant-checkbox').forEach(el => {
+      const description = el.dataset.description.toLowerCase();
+      const code = el.dataset.code.toLowerCase();
+      const brand = el.dataset.brand.toLowerCase();
+      const category = el.closest('.mb-6').dataset.category?.toLowerCase() || '';
+
+      const matchesSearch = `${description} ${code} ${brand}`.includes(searchQuery);
+      const matchesCategory = !selectedCategory || category === selectedCategory;
+
+      el.closest('.mb-6').style.display = (matchesSearch && matchesCategory) ? '' : 'none';
+    });
+  }
+
+  searchInput.addEventListener('keyup', applyFilters);
+  categoryFilter.addEventListener('change', applyFilters);
+</script>
+{% endblock %}
