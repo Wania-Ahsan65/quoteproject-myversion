@@ -8,6 +8,20 @@ from django.db.models import Q
 from collections import defaultdict
 from django.forms import modelformset_factory
 from .forms import GeneralProductForm, VariantProductForm
+from decimal import Decimal, InvalidOperation
+from openpyxl import load_workbook
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from .forms import ProductUploadForm
+from .models import Product
+
+def safe_decimal(value):
+    try:
+        if str(value).strip() in ["–", "-", "—", "", None]:
+            return Decimal("0.0")
+        return Decimal(str(value).strip())
+    except (InvalidOperation, TypeError):
+        return Decimal("0.0")
 
 def product_upload_view(request):
     if request.method == 'POST':
@@ -17,9 +31,10 @@ def product_upload_view(request):
             wb = load_workbook(file)
             sheet = wb.active
 
-            # Process each row (skipping header row)
+            new_products = []
             new_count = 0
             skipped_count = 0
+
             for row in sheet.iter_rows(min_row=2, values_only=True):
                 product_code = row[0]
                 product_description = row[1]
@@ -28,10 +43,9 @@ def product_upload_view(request):
                 abv = row[4]
                 country = row[5]
                 brand = row[6]
-                cost_price = row[7]
+                cost_price = safe_decimal(row[7])
 
-                if product_code:  # Ensure product_code is present
-                    # Check for a product with EXACTLY these values
+                if product_code:
                     exists = Product.objects.filter(
                         product_code=product_code,
                         product_description=product_description,
@@ -46,18 +60,21 @@ def product_upload_view(request):
                     if exists:
                         skipped_count += 1
                         continue
-                    else:
-                        Product.objects.create(
-                            product_code=product_code,
-                            product_description=product_description,
-                            category=category,
-                            size=size,
-                            abv=abv,
-                            country=country,
-                            brand=brand,
-                            cost_price=cost_price,
-                        )
-                        new_count += 1
+
+                    new_products.append(Product(
+                        product_code=product_code,
+                        product_description=product_description,
+                        category=category,
+                        size=size,
+                        abv=abv,
+                        country=country,
+                        brand=brand,
+                        cost_price=cost_price,
+                    ))
+                    new_count += 1
+
+            if new_products:
+                Product.objects.bulk_create(new_products)
 
             messages.success(request,
                 f"Products uploaded. {new_count} new records added; {skipped_count} duplicates skipped.")
@@ -66,6 +83,7 @@ def product_upload_view(request):
         form = ProductUploadForm()
     
     return render(request, 'products/upload.html', {'form': form})
+
 
 def product_list_view(request):
     query = request.GET.get('q', '')

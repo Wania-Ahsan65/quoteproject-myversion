@@ -1,1 +1,1 @@
-web: gunicorn BestWines.wsgi
+web: gunicorn BestWines.wsgi --timeout 120
