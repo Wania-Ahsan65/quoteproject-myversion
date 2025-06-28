@@ -8,5 +8,6 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),
     path('products/', include('products.urls')),
     path('quotes/', include('quotes.urls')),
+    path('customers/', include('customers.urls')),
 ]
 
