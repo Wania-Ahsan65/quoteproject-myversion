@@ -14,6 +14,7 @@ from django.contrib import messages
 from django.shortcuts import render, redirect
 from .forms import ProductUploadForm
 from .models import Product
+from django.http import JsonResponse
 
 def safe_decimal(value):
     try:
@@ -167,3 +168,11 @@ def product_edit_view(request, product_code):
         'product_code': product_code,
     }
     return render(request, 'products/product_edit_new.html', context)
+
+def autocomplete_products(request):
+    if 'term' in request.GET:
+        term = request.GET.get('term')
+        matches = Product.objects.filter(product_description__icontains=term)[:10]
+        results = list(matches.values_list('product_description',flat=True))
+        return JsonResponse(results, safe=False)
+    return JsonResponse([], safe=False)

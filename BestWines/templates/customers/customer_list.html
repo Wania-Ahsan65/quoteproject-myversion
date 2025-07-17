@@ -1,10 +1,48 @@
-{% extends "base.html" %}
-
+{% extends 'base.html' %} {% block title %}Customer List{% endblock %} 
 {% block content %}
-  <h2>Customers</h2>
-  <ul>
-    {% for customer in customers %}
-      <li>{{ customer.name }} - {{ customer.email }}</li>
-    {% endfor %}
-  </ul>
-{% endblock %}
+<div class="container mt-5">
+  <h2 class="mb-4 font-bold text-2xl">Customer List</h2>
+
+  <!-- Add Customer Button -->
+  <a href="{% url 'customers:create' %}" class="btn btn-success mb-3"
+    >+ Add Customer</a
+  >
+
+  <!-- Responsive Table -->
+  <div class="table-responsive">
+    <table
+      class="table table-bordered table-hover w-auto"
+      style="min-width: 100%; table-layout: auto"
+    >
+
+<thead class="table-light">
+  <tr>
+    <th style="white-space: nowrap">Name</th>
+    <th style="white-space: nowrap">Email</th>
+    <th style="white-space: nowrap">Phone</th>
+    <th style="white-space: nowrap">Address</th>
+    <th style="white-space: nowrap">Account Number</th> 
+    <th style="white-space: nowrap">Actions</th>
+  </tr>
+</thead>
+<tbody>
+  {% for customer in customers %}
+  <tr>
+    <td>{{ customer.name }}</td>
+    <td>{{ customer.email }}</td>
+    <td>{{ customer.phone }}</td>
+    <td>{{ customer.address }}</td>
+    <td>{{ customer.account_number }}</td> 
+    <td>
+      <a href="{% url 'customers:update' customer.id %}" class="btn btn-sm btn-primary">Edit</a>
+      <a href="{% url 'customers:delete' customer.id %}" class="btn btn-sm btn-danger">Delete</a>
+    </td>
+  </tr>
+  {% empty %}
+  <tr>
+    <td colspan="6" class="text-center text-muted">
+      No customers found.
+    </td>
+  </tr>
+  {% endfor %}
+</tbody>

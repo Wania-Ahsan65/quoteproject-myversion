@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+<h2>Confirm Delete</h2>
+
+<p>Are you sure you want to delete "{{ customer.name }}"?</p>
+
+<form method="POST">
+  {% csrf_token %}
+  <button type="submit">Yes, Delete</button>
+  <a href="{% url 'customers:list' %}">Cancel</a>
+</form>
+
+{% block content %}
+<div class="container mt-5">
+  <div class="card p-4 shadow-sm">
+    <h3 class="text-danger">Confirm Delete</h3>
+    <p>Are you sure you want to delete <strong>{{ customer.name }}</strong>?</p>
+    <form method="POST">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">Yes, Delete</button>
+      <a href="{% url 'customers:list' %}" class="btn btn-secondary ms-2">Cancel</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -5,16 +5,28 @@ from django.forms import modelform_factory
 from django.forms import inlineformset_factory
 from products.models import Product
 from .models import Quote, QuoteItem
+from django.http import HttpResponse
+from django.template.loader import render_to_string
 
 @login_required
-def quote_list_view(request):
+def quote_search_view(request):
+    query = request.GET.get("q", "")
     if request.user.is_superuser:
-        quotes = Quote.objects.all().order_by('-created_at')
+        quotes = Quote.objects.all()
     else:
-        quotes = Quote.objects.filter(user=request.user).order_by('-created_at')
+        quotes = Quote.objects.filter(user=request.user)
 
-    return render(request, 'quotes/quote_list.html', {'quotes': quotes})
+    if query:
+        quotes = quotes.filter(customer_name__icontains=query)
 
+    html = render_to_string("quotes/quote_list_partial.html", {"quotes": quotes})
+    return HttpResponse(html)
+
+from django.shortcuts import render
+
+def quote_list_view(request):
+    # Replace with your actual logic
+    return render(request, 'quotes/quote_list.html')
 
 from django.shortcuts import render, redirect
 from .models import Quote, QuoteItem
@@ -210,14 +222,22 @@ from .models import Quote
 from django.template.loader import get_template
 from django.template import Context
 from django.contrib.staticfiles import finders
-
+from django.utils.dateformat import format 
+from django.utils.text import Truncator
 
 def export_quote_client_pdf(request, pk):
     quote = Quote.objects.get(pk=pk)
     items = quote.items.select_related('product')
 
+    formatted_date = format(quote.created_at, "d M Y, h:i A")
+
+    for item in items:
+        desc = item.product.product_description
+        clean_desc = desc.split(' - ')[0]  # Removes part after ' - '
+        item.product.cleaned_description = clean_desc
+
     template = get_template('quotes/client_quote_pdf.html')
-    html = template.render({'quote': quote, 'items': items})
+    html = template.render({'quote': quote, 'items': items, 'created_at': formatted_date})
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="Quote-{quote.id}-Client.pdf"'
@@ -229,3 +249,4 @@ def export_quote_client_pdf(request, pk):
     if pisa_status.err:
         return HttpResponse("We had some errors with PDF generation", status=500)
     return response
+

@@ -9,6 +9,15 @@
   </a>
 </div>
 
+<div class="mb-4">
+  <input type="text" id="quote-search" placeholder="Filter quotes by customer name..."
+         class="w-full px-3 py-2 border rounded" />
+</div>
+
+<div id="quote-results">
+  {% include "quotes/quote_list_partial.html" %}
+</div>
+
 {% if quotes %}
   <div class="grid gap-4">
     {% for quote in quotes %}
@@ -28,4 +37,17 @@
 {% else %}
   <p class="text-gray-600">No quotes found. <a href="{% url 'quotes:create' %}" class="text-indigo-600 underline">Create one</a>.</p>
 {% endif %}
+
+<script>
+  document.getElementById('quote-search').addEventListener('input', function () {
+    const query = this.value;
+
+    fetch(`/quotes/search/?q=${encodeURIComponent(query)}`)
+      .then(response => response.text())
+      .then(html => {
+        document.getElementById('quote-results').innerHTML = html;
+      });
+  });
+</script>
+
 {% endblock %}

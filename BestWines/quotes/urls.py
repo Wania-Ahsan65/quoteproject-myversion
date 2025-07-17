@@ -10,5 +10,6 @@ urlpatterns = [
     path('<int:pk>/export/full/', views.export_quote_full, name='export_full'),
     path('<int:pk>/export/sales/', views.export_quote_sales, name='export_sales'),
     path('<int:pk>/export/client-pdf/', views.export_quote_client_pdf, name='export_client_pdf'),
+    path('search/', views.quote_search_view, name='quote_search'),
 
 ]

@@ -38,26 +38,26 @@
       </div>
 
       {% for product_code, variants in products_by_code.items %}
-      <div class="mb-6 border rounded p-4" data-category="{{ variants.0.category|lower }}">
-        <h2 class="text-base font-semibold text-gray-800">{{ variants.0.product_description }}</h2>
-        <p class="text-sm text-gray-500 mb-2">{{ product_code }}</p>
-
+      <div class="mb-4 border rounded p-2" data-category="{{ variants.0.category|lower }}">
+      <div class="flex items-center justify-between mb-1">
+        <h2 class="text-base font-semibold text-gray-800">
+          {{ variants.0.product_description }} - {{ product_code }}
+        </h2>
+        
         {% for variant in variants %}
-        <div class="flex items-center justify-between bg-gray-50 rounded px-2 py-2 mb-1">
-          <label class="flex items-center gap-2 w-full">
+       
+          <label class="flex items-center gap-1 ">
             <input type="checkbox" class="variant-checkbox"
                    data-id="{{ variant.id }}"
                    data-brand="{{ variant.brand }}"
                    data-code="{{ variant.product_code }}"
                    data-description="{{ variant.product_description }}"
                    data-cost="{{ variant.cost_price }}">
-            <div>
-              <p class="text-sm font-medium text-gray-700">{{ variant.brand }}</p>
-            </div>
+             <span class="text-sm text-gray-600 whitespace-nowrap">£{{ variant.cost_price }}</span>
           </label>
-          <span class="text-sm text-gray-500 whitespace-nowrap ml-2">£{{ variant.cost_price }}</span>
+          {% endfor %}
         </div>
-        {% endfor %}
+        
       </div>
       {% endfor %}
     </div>

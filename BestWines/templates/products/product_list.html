@@ -94,4 +94,18 @@
     </a>
   {% endif %}
 </div>
+
+
+<script>
+  $(function(){
+    $("input[name='q']").autocomplete({
+      source:"/products/autocomplete/",
+      minLength: 2,
+      select : function(event, ui) {
+        $("input[name='q']").val(ui.item.value);
+        $(this).closest("form").submit();
+      }
+    });
+  });
+</script>
 {% endblock %}

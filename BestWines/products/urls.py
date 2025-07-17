@@ -7,4 +7,6 @@ urlpatterns = [
     path('upload/', views.product_upload_view, name='upload'),
     path('', views.product_list_view, name='list'),
     path('edit/<str:product_code>/', views.product_edit_view, name='edit'),
+    path('autocomplete/', views.autocomplete_products, name='autocomplete'),
 ]
+
