@@ -5,6 +5,7 @@ from django.forms import modelform_factory
 from django.forms import inlineformset_factory
 from products.models import Product
 from .models import Quote, QuoteItem
+from customers.models import Customer
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 
@@ -34,6 +35,9 @@ from products.models import Product
 from collections import defaultdict
 
 def quote_create_view(request):
+
+    customers = Customer.objects.all()  
+
     if request.method == 'POST':
         quote = Quote.objects.create(
             customer_name=request.POST.get("customer_name"),
@@ -73,7 +77,9 @@ def quote_create_view(request):
     categories = Product.objects.values_list('category', flat=True).distinct()
     return render(request, 'quotes/quote_create.html', {
         'products_by_code': dict(grouped),
-        'categories': categories
+        'categories': categories,
+        'customers': customers,
+
     })
 
 

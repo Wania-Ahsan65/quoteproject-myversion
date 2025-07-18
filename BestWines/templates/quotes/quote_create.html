@@ -9,17 +9,47 @@
 
   <!-- Quote Info -->
   <div class="bg-white p-4 mb-6 rounded shadow space-y-4">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <label class="block font-medium">Customer Name</label>
-        <input type="text" name="customer_name" class="w-full border rounded px-3 py-2" required>
-      </div>
-      <div>
-        <label class="block font-medium">Notes</label>
-        <textarea name="notes" rows="2" class="w-full border rounded px-3 py-2"></textarea>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    
+    <!-- Customer Name Dropdown -->
+    <div class="col-span-1">
+      <label class="block font-medium">Customer Name</label>
+      <select name="customer_name" id="customerSelect" class="w-full border rounded px-3 py-2" required>
+        <option value="">-- Select Customer --</option>
+        {% for customer in customers %}
+          <option value="{{ customer.id }}" 
+                  data-account="{{ customer.account_number }}" >
+            {{ customer.name }}
+          </option>
+        {% endfor %}
+      </select>
+
+      <!-- Discount under customer name -->
+      <div class="mt-2 flex gap-4 items-center">
+        <div class="w-1/2">
+          <label class="block font-medium text-sm">Discount (%)</label>
+          <input type="number" name="discount" id="discount" 
+                 class="w-full border rounded px-3 py-2 text-sm" >
+        </div>
+
+        <!-- Account Number next to discount -->
+        <div class="w-full">
+          <label class="block font-medium text-sm">Account Number</label>
+          <input type="text" name="account_number" id="accountNumber" 
+                 class="w-full border rounded px-3 py-2 text-sm" readonly>
+        </div>
       </div>
     </div>
+
+    <!-- Notes -->
+    <div>
+      <label class="block font-medium">Notes</label>
+      <textarea name="notes" rows="2" class="w-full border rounded px-3 py-2"></textarea>
+    </div>
+
   </div>
+</div>
+
 
   <!-- Quote Builder -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -186,5 +216,14 @@
 
   searchInput.addEventListener('keyup', applyFilters);
   categoryFilter.addEventListener('change', applyFilters);
+
+  document.getElementById('customerSelect').addEventListener('change',function(){
+    const selected = this.options[this.selectedIndex];
+    const accountNumber = selected.getAttribute('data-account');
+   
+    document.getElementById('accountNumber').value = accountNumber || '';
+    
+  }
+  );
 </script>
 {% endblock %}

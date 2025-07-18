@@ -20,9 +20,10 @@
   <tr>
     <th style="white-space: nowrap">Name</th>
     <th style="white-space: nowrap">Email</th>
+    <th style="white-space: nowrap">Account Number</th>
+    {% comment %} <th style="white-space: nowrap">Discount (%)</th> {% endcomment %}
     <th style="white-space: nowrap">Phone</th>
     <th style="white-space: nowrap">Address</th>
-    <th style="white-space: nowrap">Account Number</th> 
     <th style="white-space: nowrap">Actions</th>
   </tr>
 </thead>
@@ -31,9 +32,10 @@
   <tr>
     <td>{{ customer.name }}</td>
     <td>{{ customer.email }}</td>
+    <td>{{ customer.account_number }}</td> 
+    {% comment %} <td>{{ customer.discount }}%</td> {% endcomment %}
     <td>{{ customer.phone }}</td>
     <td>{{ customer.address }}</td>
-    <td>{{ customer.account_number }}</td> 
     <td>
       <a href="{% url 'customers:update' customer.id %}" class="btn btn-sm btn-primary">Edit</a>
       <a href="{% url 'customers:delete' customer.id %}" class="btn btn-sm btn-danger">Delete</a>
