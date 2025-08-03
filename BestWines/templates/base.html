@@ -9,8 +9,11 @@
 <!-- jQuery and jQuery UI (for autocomplete) -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
-
+<!-- Flatpickr CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 </head>
 <body class="bg-gray-100">
 
@@ -31,14 +34,30 @@
 
     <!-- ✅ Sticky Sidebar -->
     <aside class="w-64 h-[calc(100vh-5rem)] sticky top-20 bg-white shadow overflow-y-auto">
-      <nav class="p-6 space-y-4">
-        <a href="{% url 'dashboard' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded">Dashboard</a>
-        <a href="{% url 'products:list' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded">Products</a>
-        <a href="{% url 'quotes:list' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded">Quotes</a>
-        <a href="{% url 'customers:list' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded"
-        >Customers</a>
+<nav class="p-6 space-y-4">
+    <a href="{% url 'dashboard' %}" 
+       class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded">
+       Dashboard
+    </a>
 
-      </nav>
+    {% if user.is_superuser %}
+    <a href="{% url 'products:list' %}" 
+       class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded">
+       Products
+    </a>
+    {% endif %}
+
+    <a href="{% url 'quotes:list' %}" 
+       class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded">
+       Quotes
+    </a>
+
+    <a href="{% url 'customers:list' %}" 
+       class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded">
+       Customers
+    </a>
+</nav>
+
     </aside>
 
     <!-- ✅ Main Content Area -->

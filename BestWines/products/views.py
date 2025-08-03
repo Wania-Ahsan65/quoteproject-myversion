@@ -86,6 +86,12 @@ def product_upload_view(request):
     return render(request, 'products/upload.html', {'form': form})
 
 
+from django.contrib.auth.decorators import user_passes_test
+
+def superuser_required(view_func):
+    return user_passes_test(lambda u: u.is_superuser)(view_func)
+
+@superuser_required
 def product_list_view(request):
     query = request.GET.get('q', '')
     if query:
@@ -130,6 +136,7 @@ from django.contrib import messages
 from .models import Product
 from .forms import GeneralProductForm, VariantProductForm
 
+@superuser_required
 def product_edit_view(request, product_code):
     queryset = Product.objects.filter(product_code=product_code)
     if not queryset.exists():
@@ -169,6 +176,7 @@ def product_edit_view(request, product_code):
     }
     return render(request, 'products/product_edit_new.html', context)
 
+@superuser_required
 def autocomplete_products(request):
     if 'term' in request.GET:
         term = request.GET.get('term')

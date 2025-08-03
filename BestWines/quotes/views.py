@@ -8,6 +8,7 @@ from .models import Quote, QuoteItem
 from customers.models import Customer
 from django.http import HttpResponse
 from django.template.loader import render_to_string
+from decimal import Decimal
 
 @login_required
 def quote_search_view(request):
@@ -39,12 +40,15 @@ def quote_create_view(request):
     customers = Customer.objects.all()  
 
     if request.method == 'POST':
+        discount=Decimal(request.POST.get("discount") or 0)
+
         quote = Quote.objects.create(
             customer_name=request.POST.get("customer_name"),
             notes=request.POST.get("notes"),
-            user=request.user
+            user=request.user,
+            discount=discount
         )
-
+       
         items = request.POST.getlist("items[]")  # or parse from `items[product_id]` format
 
         # OR loop manually if you're using dynamic field names like items[123][quantity]
@@ -53,8 +57,12 @@ def quote_create_view(request):
                 prefix = key.split('][')[0]  # e.g., items[123
                 product_id = request.POST.get(key)
                 quantity = request.POST.get(f"{prefix}][quantity]")
-                cost = request.POST.get(f"{prefix}][cost_price]")
-                selling = request.POST.get(f"{prefix}][selling_price]")
+                cost = Decimal(request.POST.get(f"{prefix}][cost_price]"))
+                selling = Decimal(request.POST.get(f"{prefix}][selling_price]"))
+
+                margin = ((selling - cost) / selling ) * 100 if selling else 0
+                discount_price = selling - (selling * discount/100)
+
 
                 if product_id and quantity:
                     QuoteItem.objects.create(
@@ -63,7 +71,9 @@ def quote_create_view(request):
                         quantity=quantity,
                         cost_price=cost,
                         selling_price=selling,
-                        margin=0  # Optional: calculate later
+                        margin=margin,
+                        discount=discount,
+                        discount_price=discount_price     
                     )
 
         return redirect('quotes:detail', pk=quote.pk)
@@ -81,9 +91,6 @@ def quote_create_view(request):
         'customers': customers,
 
     })
-
-
-
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render
@@ -104,9 +111,22 @@ def quote_detail_view(request, pk):
                 item = QuoteItem.objects.get(pk=item_id, quote=quote)
 
                 item.quantity = 1
-                item.cost_price = request.POST.get(f"{prefix}_cost_price")
-                item.selling_price = request.POST.get(f"{prefix}_selling_price")
-                item.margin = request.POST.get(f"{prefix}_margin")
+                cost_price = request.POST.get(f"{prefix}_cost_price")
+                selling_price = request.POST.get(f"{prefix}_selling_price")
+                margin = request.POST.get(f"{prefix}_margin")
+                discount = request.POST.get(f"{prefix}_discount")  # Expecting a percentage input
+
+                # Convert values to Decimal for precise arithmetic
+                from decimal import Decimal
+
+                item.cost_price = Decimal(cost_price or 0)
+                item.selling_price = Decimal(selling_price or 0)
+                item.margin = Decimal(margin or 0)
+                item.discount = Decimal(discount or 0)
+
+                # Calculate discounted price
+                item.discount_price = item.selling_price - (item.selling_price * item.discount / Decimal('100'))
+
                 item.save()
 
         return redirect('quotes:detail', pk=quote.pk)

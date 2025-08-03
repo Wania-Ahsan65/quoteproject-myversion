@@ -50,8 +50,20 @@
           </td>
 
           <td class="px-4 py-3">
+            <div class="flex flex-col space-y-1">
             <input type="number" step="0.01" name="item_{{ forloop.counter }}_selling_price"
                    value="{{ item.selling_price }}" class="w-24 border rounded px-2 py-1 selling-price">
+
+              <!-- ✅ Discount (%) input -->
+          <input type="number" step="0.01" name="item_{{ forloop.counter }}_discount"
+                value="{{ item.discount|default:"" }}" placeholder="Discount %"
+                class="w-24 border rounded px-2 py-1 discount-percentage">
+
+              <!-- ✅ Discounted Price (calculated, readonly) -->
+          <input type="text" readonly name="item_{{ forloop.counter }}_discount_price"
+                value="{{ item.discount_price|default:"" }}" placeholder="Discounted Price"
+                class="w-24 border rounded px-2 py-1 text-gray-500 bg-gray-50 discounted-price">
+              </div>
           </td>
 
           <td class="px-4 py-3">
@@ -77,6 +89,8 @@
     const costInput = row.querySelector('.cost-price');
     const priceInput = row.querySelector('.selling-price');
     const marginField = row.querySelector('.margin-field');
+    const discountInput = row.querySelector('.discount-percentage');
+    const discountPriceField = row.querySelector('.discounted-price');
 
     if (costInput && priceInput && marginField) {
       function updateMargin() {
@@ -90,10 +104,33 @@
         }
       }
 
+      function updateDiscountedPrice() {
+        const price = parseFloat(priceInput?.value || 0);
+        const discount = parseFloat(discountInput?.value || 0);
+        if (!isNaN(price) && !isNaN(discount)) {
+          const discountedPrice = price - (price * discount / 100);
+          discountPriceField.value = discountedPrice.toFixed(2);
+        } else {
+          discountPriceField.value = '';
+        }
+      }
+
+      // Event bindings
       costInput.addEventListener('input', updateMargin);
-      priceInput.addEventListener('input', updateMargin);
-      updateMargin(); // initial
+      priceInput.addEventListener('input', () => {
+        updateMargin();
+        updateDiscountedPrice();
+      });
+
+      if (discountInput) {
+        discountInput.addEventListener('input', updateDiscountedPrice);
+      }
+
+      // Initial calculations
+      updateMargin();
+      updateDiscountedPrice();
     }
   });
 </script>
+
 {% endblock %}

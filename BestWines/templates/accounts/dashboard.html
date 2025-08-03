@@ -4,4 +4,45 @@
 {% block content %}
   <h1 class="text-2xl font-bold text-gray-800 mb-6">Dashboard</h1>
   <p class="text-gray-600">Welcome to BestWines Warehouse Management.</p>
+
+  <h2 class="text-xl font-bold mb-4">Top 10 Products</h2>
+
+<!-- ✅ Filters -->
+<form method="get" class="mb-4 flex gap-4">
+    <input type="text" id="dateRange" name="date_range" placeholder="Select Date Range"> 
+    <select name="customer_name">
+        <option value="">All Customers</option>
+        {% for c in customers %}
+        <option value="{{ c }}" {% if request.GET.customer_name == c %}selected{% endif %}>{{ c }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit" class="px-3 py-1 bg-indigo-600 text-white rounded">Filter</button>
+</form>
+
+<div class="flex justify-center">
+    <div class="w-[600px] h-[400px]">
+<canvas id="productChart"></canvas>
+    </div>
+</div>
+
+<script>
+    flatpickr("#dateRange", {
+        mode: "range",
+        dateFormat: "Y-m-d",
+        defaultDate: ["{{ request.GET.start_date|default:'' }}", "{{ request.GET.end_date|default:'' }}"]
+    });
+    const ctx = document.getElementById('productChart').getContext('2d');
+    const chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {{ labels|safe }},
+            datasets: [{
+                label: 'Top 10 Products (Qty)',
+                data: {{ data|safe }},
+                backgroundColor: 'rgba(75, 192, 192, 0.6)',
+            }]
+        }
+    });
+</script>
+
 {% endblock %}

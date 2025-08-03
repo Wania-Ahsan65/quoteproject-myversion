@@ -1,6 +1,5 @@
-{% extends "base.html" %}
-{% block title %}Create Quote{% endblock %}
-
+{% extends "base.html" %} 
+{% block title %}Create Quote{% endblock %} 
 {% block content %}
 <h1 class="text-2xl font-bold mb-6">Create Quote</h1>
 
@@ -9,95 +8,127 @@
 
   <!-- Quote Info -->
   <div class="bg-white p-4 mb-6 rounded shadow space-y-4">
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    
-    <!-- Customer Name Dropdown -->
-    <div class="col-span-1">
-      <label class="block font-medium">Customer Name</label>
-      <select name="customer_name" id="customerSelect" class="w-full border rounded px-3 py-2" required>
-        <option value="">-- Select Customer --</option>
-        {% for customer in customers %}
-          <option value="{{ customer.id }}" 
-                  data-account="{{ customer.account_number }}" >
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- Customer Name Dropdown -->
+      <div class="col-span-1">
+        <label class="block font-medium">Customer Name</label>
+        <select
+          name="customer_name"
+          id="customerSelect"
+          class="w-full border rounded px-3 py-2"
+          required
+        >
+          <option value="">-- Select Customer --</option>
+          {% for customer in customers %}
+          <option
+            value="{{ customer.id }}"
+            data-account="{{ customer.account_number }}"
+          >
             {{ customer.name }}
           </option>
-        {% endfor %}
-      </select>
+          {% endfor %}
+        </select>
 
-      <!-- Discount under customer name -->
-      <div class="mt-2 flex gap-4 items-center">
-        <div class="w-1/2">
-          <label class="block font-medium text-sm">Discount (%)</label>
-          <input type="number" name="discount" id="discount" 
-                 class="w-full border rounded px-3 py-2 text-sm" >
-        </div>
+        <!-- Discount under customer name -->
+        <div class="mt-2 flex gap-4 items-center">
+          <div class="w-1/2">
+            <label class="block font-medium text-sm">Discount (%)</label>
+            <input
+              type="number"
+              name="discount"
+              id="discount"
+              class="w-full border rounded px-3 py-2 text-sm pr-10"
+            />
+            
+          </div>
 
-        <!-- Account Number next to discount -->
-        <div class="w-full">
-          <label class="block font-medium text-sm">Account Number</label>
-          <input type="text" name="account_number" id="accountNumber" 
-                 class="w-full border rounded px-3 py-2 text-sm" readonly>
+          <!-- Account Number next to discount -->
+          <div class="w-full">
+            <label class="block font-medium text-sm">Account Number</label>
+            <input
+              type="text"
+              name="account_number"
+              id="accountNumber"
+              class="w-full border rounded px-3 py-2 text-sm"
+              readonly
+            />
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Notes -->
-    <div>
-      <label class="block font-medium">Notes</label>
-      <textarea name="notes" rows="2" class="w-full border rounded px-3 py-2"></textarea>
+      <!-- Notes -->
+      <div>
+        <label class="block font-medium">Notes</label>
+        <textarea
+          name="notes"
+          rows="2"
+          class="w-full border rounded px-3 py-2"
+        ></textarea>
+      </div>
     </div>
-
   </div>
-</div>
-
 
   <!-- Quote Builder -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
     <!-- Left: Search & Products -->
     <div class="bg-white p-4 rounded shadow h-[75vh] overflow-y-auto">
       <div class="mb-4 flex gap-4">
         <select id="category-filter" class="border px-3 py-2 rounded w-1/2">
           <option value="">All Categories</option>
           {% for category in categories %}
-            <option value="{{ category }}">{{ category }}</option>
+          <option value="{{ category }}">{{ category }}</option>
           {% endfor %}
         </select>
-        <input id="search" type="text" placeholder="Search products..."
-               class="border px-3 py-2 rounded w-full">
+        <input
+          id="search"
+          type="text"
+          placeholder="Search products..."
+          class="border px-3 py-2 rounded w-full"
+        />
       </div>
 
       {% for product_code, variants in products_by_code.items %}
-      <div class="mb-4 border rounded p-2" data-category="{{ variants.0.category|lower }}">
-      <div class="flex items-center justify-between mb-1">
-        <h2 class="text-base font-semibold text-gray-800">
-          {{ variants.0.product_description }} - {{ product_code }}
-        </h2>
-        
-        {% for variant in variants %}
-       
-          <label class="flex items-center gap-1 ">
-            <input type="checkbox" class="variant-checkbox"
-                   data-id="{{ variant.id }}"
-                   data-brand="{{ variant.brand }}"
-                   data-code="{{ variant.product_code }}"
-                   data-description="{{ variant.product_description }}"
-                   data-cost="{{ variant.cost_price }}">
-             <span class="text-sm text-gray-600 whitespace-nowrap">£{{ variant.cost_price }}</span>
+      <div
+        class="mb-4 border rounded p-2"
+        data-category="{{ variants.0.category|lower }}"
+      >
+        <div class="flex items-center justify-between mb-1">
+          <h2 class="text-base font-semibold text-gray-800">
+          
+            {{ variants.0.product_description }} - {{ product_code }}
+          </h2>
+
+          {% for variant in variants %}
+
+          <label class="flex items-center gap-1">
+            <input
+              type="checkbox"
+              class="variant-checkbox"
+              data-id="{{ variant.id }}"
+              data-brand="{{ variant.brand }}"
+              data-code="{{ variant.product_code }}"
+              data-description="{{ variant.product_description }}"
+              data-cost="{{ variant.cost_price }}"
+            />
+            <span class="text-sm text-gray-600 whitespace-nowrap"
+              >£{{ variant.cost_price }}</span
+            >
           </label>
           {% endfor %}
         </div>
-        
       </div>
       {% endfor %}
     </div>
 
     <!-- Right: Quote Preview -->
-    <div class="bg-white p-4 rounded shadow h-[75vh] overflow-y-auto">
+    <div class="bg-white p-2 rounded shadow h-[70vh] overflow-y-auto">
       <h2 class="text-lg font-bold mb-4">Quote Items</h2>
       <div id="selected-items" class="space-y-4"></div>
 
-      <button type="submit" class="mt-6 w-full py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+      <button
+        type="submit"
+        class="mt-6 w-full py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+      >
         Save Quote
       </button>
     </div>
@@ -106,15 +137,15 @@
 
 <!-- JS for Dynamic Behavior -->
 <script>
-  const searchInput = document.getElementById('search');
-  const categoryFilter = document.getElementById('category-filter');
-  const variantCheckboxes = document.querySelectorAll('.variant-checkbox');
-  const selectedItems = document.getElementById('selected-items');
+  const searchInput = document.getElementById("search");
+  const categoryFilter = document.getElementById("category-filter");
+  const variantCheckboxes = document.querySelectorAll(".variant-checkbox");
+  const selectedItems = document.getElementById("selected-items");
   const selectedMap = {};
 
   function createQuoteItem(variant) {
-    const wrapper = document.createElement('div');
-    wrapper.className = "border p-4 rounded bg-gray-50 mb-4";
+    const wrapper = document.createElement("div");
+    wrapper.className = "border p-3 rounded bg-gray-50 mb-4";
     wrapper.dataset.variantId = variant.id;
 
     wrapper.innerHTML = `
@@ -127,7 +158,7 @@
         </div>
         <button type="button" class="text-red-500 text-sm remove-item">Remove</button>
       </div>
-      <div class="grid grid-cols-3 gap-4">
+      <div class="grid grid-cols-4 gap-2">
         <div>
           <label class="text-sm font-medium">Selling Price</label>
           <input type="number" step="0.01" name="items[${variant.id}][selling_price]"
@@ -143,45 +174,67 @@
           <input type="number" step="0.01" name="items[${variant.id}][margin]"
                  class="w-full border px-2 py-1 rounded margin-field bg-gray-100 text-gray-800" readonly>
         </div>
+        <div>
+          <label class="text-sm font-medium">Discounted Price</label>
+          <input type="text" readonly name="items[${variant.id}][discount_price]"
+                class="w-full border rounded px-2 py-1 text-gray-500 bg-gray-50 discounted-price">
+        </div>
       </div>
     `;
 
-    const costInput = wrapper.querySelector('.cost-price');
-    const priceInput = wrapper.querySelector('.selling-price');
-    const marginInput = wrapper.querySelector('.margin-field');
+    const costInput = wrapper.querySelector(".cost-price");
+    const priceInput = wrapper.querySelector(".selling-price");
+    const marginInput = wrapper.querySelector(".margin-field");
+    const discountPriceField = wrapper.querySelector(".discounted-price");
+    const discountInput = document.getElementById("discount");
 
-    function updateMargin() {
+
+    function updateMarginAndDiscountedPrice() {
       const cost = parseFloat(costInput.value);
       const price = parseFloat(priceInput.value);
+      const discount = parseFloat(discountInput.value);
+
       if (!isNaN(cost) && !isNaN(price) && price > 0) {
         const margin = ((price - cost) / price) * 100;
         marginInput.value = margin.toFixed(2);
       } else {
-        marginInput.value = '';
+        marginInput.value = "";
       }
+
+      if (!isNaN(price) && !isNaN(discount)) {
+      const discountedPrice = price - (price * discount / 100);
+      discountPriceField.value = discountedPrice.toFixed(2);
+    } else {
+      discountPriceField.value = "";
     }
 
-    costInput.addEventListener('input', updateMargin);
-    priceInput.addEventListener('input', updateMargin);
-    updateMargin();
+    }
 
-    wrapper.querySelector('.remove-item').addEventListener('click', () => {
+    costInput.addEventListener("input", updateMarginAndDiscountedPrice);
+    priceInput.addEventListener("input", updateMarginAndDiscountedPrice);
+    discountInput.addEventListener("input", updateMarginAndDiscountedPrice);
+
+    updateMarginAndDiscountedPrice();
+
+    wrapper.querySelector(".remove-item").addEventListener("click", () => {
       wrapper.remove();
       delete selectedMap[variant.id];
-      document.querySelector(`.variant-checkbox[data-id="${variant.id}"]`).checked = false;
+      document.querySelector(
+        `.variant-checkbox[data-id="${variant.id}"]`
+      ).checked = false;
     });
 
     selectedItems.appendChild(wrapper);
   }
 
-  variantCheckboxes.forEach(cb => {
-    cb.addEventListener('change', function () {
+  variantCheckboxes.forEach((cb) => {
+    cb.addEventListener("change", function () {
       const variant = {
         id: this.dataset.id,
         code: this.dataset.code,
         brand: this.dataset.brand,
         description: this.dataset.description,
-        cost: this.dataset.cost
+        cost: this.dataset.cost,
       };
 
       if (this.checked) {
@@ -191,7 +244,9 @@
         }
       } else {
         delete selectedMap[variant.id];
-        const block = selectedItems.querySelector(`input[value="${variant.id}"]`)?.closest('div.border');
+        const block = selectedItems
+          .querySelector(`input[value="${variant.id}"]`)
+          ?.closest("div.border");
         if (block) block.remove();
       }
     });
@@ -201,29 +256,34 @@
     const searchQuery = searchInput.value.toLowerCase();
     const selectedCategory = categoryFilter.value.toLowerCase();
 
-    document.querySelectorAll('.variant-checkbox').forEach(el => {
+    document.querySelectorAll(".variant-checkbox").forEach((el) => {
       const description = el.dataset.description.toLowerCase();
       const code = el.dataset.code.toLowerCase();
       const brand = el.dataset.brand.toLowerCase();
-      const category = el.closest('.mb-6').dataset.category?.toLowerCase() || '';
+      const category =
+        el.closest(".mb-4").dataset.category?.toLowerCase() || "";
 
-      const matchesSearch = `${description} ${code} ${brand}`.includes(searchQuery);
-      const matchesCategory = !selectedCategory || category === selectedCategory;
+      const matchesSearch = `${description} ${code} ${brand}`.includes(
+        searchQuery
+      );
+      const matchesCategory =
+        !selectedCategory || category === selectedCategory;
 
-      el.closest('.mb-6').style.display = (matchesSearch && matchesCategory) ? '' : 'none';
+      el.closest(".mb-4").style.display =
+        matchesSearch && matchesCategory ? "" : "none";
     });
   }
 
-  searchInput.addEventListener('keyup', applyFilters);
-  categoryFilter.addEventListener('change', applyFilters);
+  searchInput.addEventListener("keyup", applyFilters);
+  categoryFilter.addEventListener("change", applyFilters);
 
-  document.getElementById('customerSelect').addEventListener('change',function(){
-    const selected = this.options[this.selectedIndex];
-    const accountNumber = selected.getAttribute('data-account');
-   
-    document.getElementById('accountNumber').value = accountNumber || '';
-    
-  }
-  );
+  document
+    .getElementById("customerSelect")
+    .addEventListener("change", function () {
+      const selected = this.options[this.selectedIndex];
+      const accountNumber = selected.getAttribute("data-account");
+
+      document.getElementById("accountNumber").value = accountNumber || "";
+    });
 </script>
 {% endblock %}
