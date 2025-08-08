@@ -116,7 +116,7 @@ def product_list_view(request):
             'size': main_info.size,
             'abv': main_info.abv,
             'country': main_info.country,
-            'cost_price': main_info.cost_price,
+            'cost_price': min(variant.cost_price for variant in variants),
             'variants': [{'brand': variant.brand, 'cost_price': variant.cost_price} for variant in variants],
         })
     

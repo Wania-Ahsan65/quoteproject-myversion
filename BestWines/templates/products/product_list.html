@@ -33,15 +33,7 @@
           {% else %}
             <h2 class="text-xl font-semibold text-indigo-600">{{ group.product_code }}</h2>
           {% endif %}
-          <p class="text-gray-500">Code: {{ group.product_code }}</p>
-          <p class="text-gray-500">Cost Price: {{ group.cost_price }}</p>
-          <div class="mt-1 text-sm text-gray-500">
-            <span>Category: <strong>{{ group.category }}</strong></span> &middot;
-            <span>Size: {{ group.size }}</span> &middot;
-            <span>ABV: {{ group.abv }}</span> &middot;
-            <span>Country: {{ group.country }}</span> &middot;
-          </div>
-          
+          <p class="text-gray-500"> - Code: {{ group.product_code }}     - Cost Price: {{ group.cost_price }}</p>
         </div> 
         <a href="{% url 'products:edit' group.product_code %}" class="block">
         
