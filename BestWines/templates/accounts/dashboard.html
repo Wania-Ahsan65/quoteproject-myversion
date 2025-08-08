@@ -4,7 +4,7 @@
 {% block content %}
   <h1 class="text-2xl font-bold text-gray-800 mb-6">Dashboard</h1>
   <p class="text-gray-600">Welcome to BestWines Warehouse Management.</p>
-
+    <br>
   <h2 class="text-xl font-bold mb-4">Top 10 Products</h2>
 
 <!-- ✅ Filters -->
@@ -24,14 +24,15 @@
 <canvas id="productChart"></canvas>
     </div>
 </div>
-
 <script>
     flatpickr("#dateRange", {
         mode: "range",
         dateFormat: "Y-m-d",
         defaultDate: ["{{ request.GET.start_date|default:'' }}", "{{ request.GET.end_date|default:'' }}"]
     });
+
     const ctx = document.getElementById('productChart').getContext('2d');
+
     const chart = new Chart(ctx, {
         type: 'bar',
         data: {
@@ -39,8 +40,105 @@
             datasets: [{
                 label: 'Top 10 Products (Qty)',
                 data: {{ data|safe }},
-                backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                backgroundColor: [
+                    'rgba(99, 102, 241, 0.7)',  // indigo
+                    'rgba(16, 185, 129, 0.7)',  // emerald
+                    'rgba(234, 88, 12, 0.7)',   // orange
+                    'rgba(239, 68, 68, 0.7)',   // red
+                    'rgba(236, 72, 153, 0.7)',  // pink
+                    'rgba(59, 130, 246, 0.7)',  // blue
+                    'rgba(202, 138, 4, 0.7)',   // yellow
+                    'rgba(139, 92, 246, 0.7)',  // violet
+                    'rgba(20, 184, 166, 0.7)',  // teal
+                    'rgba(245, 158, 11, 0.7)'   // amber
+                ],
+                borderColor: 'rgba(0, 0, 0, 0.1)',
+                borderWidth: 1,
+                borderRadius: 5,
+                barThickness: 30,
+                hoverBackgroundColor: 'rgba(255, 255, 255, 0.8)',
+                hoverBorderColor: 'rgba(0, 0, 0, 0.2)'
             }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: true,
+                    labels: {
+                        font: {
+                            size: 14,
+                            family: "'Inter', sans-serif"
+                        },
+                        color: '#4B5563' // text-gray-600
+                    }
+                },
+                tooltip: {
+                    backgroundColor: '#111827',
+                    titleFont: { size: 14 },
+                    bodyFont: { size: 13 },
+                    cornerRadius: 6,
+                    padding: 10
+                },
+                title: {
+                    display: true,
+                    position: 'bottom',
+                    text: 'Top 10 Products by Quantity',
+                    font: {
+                        size: 20
+                    },
+                    color: '#1F2937', // gray-800
+                    padding: {
+                        top: 10,
+                        bottom: 30
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Product Names',
+                        font: {
+                            size: 14,
+                            weight: 'bold'
+                        },
+                        color: '#374151', // gray-700
+                        padding: { top: 10 }
+                    },
+                    ticks: {
+                        color: '#6B7280',
+                        font: { size: 12 },
+                        maxRotation: 45,
+                        minRotation: 30
+                    },
+                    grid: {
+                        display: false
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Quantity Sold',
+                        font: {
+                            size: 14,
+                            weight: 'bold'
+                        },
+                        color: '#374151', // gray-700
+                        padding: { bottom: 10 }
+                    },
+                    ticks: {
+                        color: '#6B7280',
+                        stepSize: 1,
+                        font: { size: 12 }
+                    },
+                    grid: {
+                        color: 'rgba(209, 213, 219, 0.5)',
+                        borderDash: [3, 3]
+                    }
+                }
+            }
         }
     });
 </script>
