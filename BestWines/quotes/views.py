@@ -139,21 +139,55 @@ from django.http import HttpResponse
 import openpyxl
 from openpyxl.utils import get_column_letter
 from .models import Quote
+from openpyxl.styles import Font, Alignment
 
 def export_quote_full(request, pk):
+    
     quote = Quote.objects.get(pk=pk)
     items = quote.items.select_related('product')
+    
+    formatted_date = format(quote.created_at, "d M Y, h:i A")
 
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = f"Quote #{quote.id} - Full"
+    ws['A1'] = "Best Wines London Ltd"
+    ws['A2'] = "154 Shepherds Bush Road, London, W6 7BP, United Kingdom"
+    ws['A3'] = "Company No: 07748562 | bestwines.co.uk"
+
+    ws['A1'].font = Font(size=16, bold=True)
+    ws['A2'].font = Font(size=12)
+    ws['A3'].font = Font(size=12)
+
+    for row in range (1,4):
+        ws[f"A{row}"].alignment = Alignment(horizontal='center')
+
+    ws.merge_cells("A1:J1")
+    ws.merge_cells("A2:J2")
+    ws.merge_cells("A3:J3")
+
+    # === QUOTE META INFO ===
+    ws["A5"] = f"Quote #{quote.id}"
+    ws["A6"] = f"Customer: {quote.customer_name}"
+    ws["A7"] = f"Created At: {formatted_date}"
+
+    ws["A5"].font = Font(bold=True)
+    ws["A6"].font = Font(bold=True)
+    ws["A7"].font = Font(bold=True)
+
+    # Leave an empty row before the table
+    start_row = 9  
 
     # Header
     headers = [
         "Code", "Product Name", "Category", "Size", "ABV", "Country", "Brand",
         "Cost Price", "Selling Price", "Margin (%)"
     ]
+    ws.append([])
     ws.append(headers)
+
+    for col in range(1, len(headers) + 1):
+        ws.cell(row=start_row, column=col).font = Font(bold=True)
 
     for item in items:
         product = item.product
@@ -193,9 +227,6 @@ def export_quote_full(request, pk):
     )
     response['Content-Disposition'] = f'attachment; filename=Quote-{quote.id}-Full.xlsx'
     return response
-
-
-
 
 from io import BytesIO
 from django.http import HttpResponse
